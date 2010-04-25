@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+#
+# = housefire(1)
+#
+# == USAGE
+#  housefire
+#  housefire -c path-to-housefire.yml
+#
+# == INSTALL
+# RubyGem:
+#     gem install housefire
+#
+$:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
+Housefire.new(*ARGV).run
