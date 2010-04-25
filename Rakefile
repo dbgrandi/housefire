@@ -8,14 +8,16 @@ begin
     gem.summary = %Q{Send ticket notifications to Campfire}
     gem.description = %Q{Inspired by http://github.com/blog/609-tracking-deploys-with-compare-view}
     gem.email = "dave@wegoto12.com"
-    gem.homepage = "http://github.com/dbgrandi/Housefire"
+    gem.homepage = "http://github.com/dbgrandi/housefire"
     gem.authors = ["dbgrandi"]
     gem.files = FileList['[A-Z]*',
       'generators/**/*.*',
       'lib/**/*.rb',
       'lib/templates/*.erb']
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.add_development_dependency "shoulda", ">= 0"
     gem.add_dependency('broach', '>= 0.1.4')
+    gem.add_dependency('nokogiri' ,'>= 0')
+    gem.add_dependency('sanitize' ,'>= 0')
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError

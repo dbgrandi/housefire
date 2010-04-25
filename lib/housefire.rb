@@ -6,14 +6,8 @@
 require 'rubygems'
 require 'nokogiri'
 require 'sanitize'
-require 'httparty'
-require 'json'
 require 'broach'
-require 'optparse'
 
-#
-# I used the Gist (@defunkt) gem as a model for this.
-#
 class Housefire
   
   def initialize(*args)
