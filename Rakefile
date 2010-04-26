@@ -6,10 +6,10 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "housefire"
     gem.summary = %Q{Send ticket notifications to Campfire}
-    gem.description = %Q{Inspired by http://github.com/blog/609-tracking-deploys-with-compare-view}
+    gem.description = %Q{Get your Lighthouse ticket changes into Campfire.}
     gem.email = "dave@wegoto12.com"
     gem.homepage = "http://github.com/dbgrandi/housefire"
-    gem.authors = ["dbgrandi"]
+    gem.authors = ["David Grandinetti"]
     gem.files = FileList['[A-Z]*',
       'lib/**/*.rb',
       'bin/housefire']
