@@ -8,17 +8,19 @@ Gem::Specification.new do |s|
   s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["David Grandinetti"]
+  s.authors = ["dbgrandi"]
   s.date = %q{2010-04-26}
   s.default_executable = %q{housefire}
-  s.description = %q{Notify campfire about changes to your lighthouse tickets.}
+  s.description = %q{Inspired by http://github.com/blog/609-tracking-deploys-with-compare-view}
   s.email = %q{dave@wegoto12.com}
   s.executables = ["housefire"]
   s.extra_rdoc_files = [
-    "LICENSE"
+    "LICENSE",
+     "README.markdown"
   ]
   s.files = [
     "LICENSE",
+     "README.markdown",
      "Rakefile",
      "VERSION",
      "bin/housefire",
