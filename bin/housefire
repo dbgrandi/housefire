@@ -11,4 +11,5 @@
 #     gem install housefire
 #
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
+require 'housefire'
 Housefire.new(*ARGV).run

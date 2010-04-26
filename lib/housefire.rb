@@ -23,16 +23,16 @@ class Housefire
     #   ssl: <use ssl for campfire?>
     #   lhcache: <where to put the lighthouse event cache>
     #
-    conf = YAML.load(File.read(File.expand_path("~/.housefire")))
-    conf['ssl'] ||= false
-    conf['lhcache'] ||= File.expand_path("~/.housefire.tmp")
+    @conf = YAML.load(File.read(File.expand_path("~/.housefire")))
+    @conf['ssl'] ||= false
+    @conf['lhcache'] ||= File.expand_path("~/.housefire.tmp")
     
     Broach.settings = {
-      'account' => conf['account'],
-      'token'   => conf['token'],
-      'use_ssl' => conf['ssl'],
+      'account' => @conf['account'],
+      'token'   => @conf['token'],
+      'use_ssl' => @conf['ssl'],
     }
-    room = Broach::Room.find_by_name(conf['room'])
+    @room = Broach::Room.find_by_name(@conf['room'])
   end
   
   def run
@@ -45,9 +45,9 @@ class Housefire
   def poll_lighthouse
     puts "running..."
     # check for a cached copy of the last feed pull
-    recent_items = load_db(conf['lhcache']) || {}
+    recent_items = load_db(@conf['lhcache']) || {}
 
-    doc = Nokogiri::XML(`curl -su "#{conf['lhuser']}":#{conf['lhpass']} https://#{conf['lhdomain']}.lighthouseapp.com/events.atom`)
+    doc = Nokogiri::XML(`curl -su "#{@conf['lhuser']}":#{@conf['lhpass']} https://#{@conf['lhdomain']}.lighthouseapp.com/events.atom`)
 
     # parse out events into things we recognize (changeset, ticket, etc.)
     doc.css("entry").each do |entry|
@@ -70,11 +70,11 @@ class Housefire
           message = "#{e[:author]}: #{e[:title]} -- #{e[:content]}".gsub(/[^[:print:]]/, '').gsub(/&amp;/,'&')
           puts message
           puts "\n\n\n"
-          room.speak(message)
+          @room.speak(message)
         end
     #    recent_items = recent_items.sort.last 10
         recent_items[id] = e
-        save_db(conf['lhcache'], recent_items)
+        save_db(@conf['lhcache'], recent_items)
       end
     end
 

@@ -11,9 +11,8 @@ begin
     gem.homepage = "http://github.com/dbgrandi/housefire"
     gem.authors = ["dbgrandi"]
     gem.files = FileList['[A-Z]*',
-      'generators/**/*.*',
       'lib/**/*.rb',
-      'lib/templates/*.erb']
+      'bin/housefire']
     gem.add_development_dependency "shoulda", ">= 0"
     gem.add_dependency('broach', '>= 0.1.4')
     gem.add_dependency('nokogiri' ,'>= 0')
