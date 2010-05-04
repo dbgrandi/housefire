@@ -51,33 +51,37 @@ class Housefire
 
     # parse out events into things we recognize (changeset, ticket, etc.)
     doc.css("entry").each do |entry|
-      id = entry.css("id")[0].content.split("Event/")[1].to_i
+      begin
+        id = entry.css("id")[0].content.split("Event/")[1].to_i
 
-      # DON'T notify the same event more than once
-      if !recent_items.key?(id)
-        e = {}
-        e[:id] = id
+        # DON'T notify the same event more than once
+        if !recent_items.key?(id)
+          e = {}
+          e[:id] = id
 
-        # DON'T notify changesets, github already does that
-        title = entry.css("title")[0].content
-        if !title.include?("[Changeset] ")
-          e[:title]   = title
-          e[:content] = Sanitize.clean(entry.css("content")[0].content)
-          e[:author]  = entry.css("author name")[0].content
-          e[:link]    = entry.css("link")[0].attributes["href"].content
-          e[:date]    = entry.css("published")[0].content
+          # DON'T notify changesets, github already does that
+          title = entry.css("title")[0].content
+          if !title.include?("[Changeset] ")
+            e[:title]   = title
+            e[:content] = Sanitize.clean(entry.css("content")[0].content)
+            e[:author]  = entry.css("author name")[0].content
+            e[:link]    = entry.css("link")[0].attributes["href"].content
+            e[:date]    = entry.css("published")[0].content
 
-          message = "#{e[:author]}: #{e[:title]} -- #{e[:content]}".gsub(/[^[:print:]]/, '').gsub(/&amp;/,'&')
-          puts message
-          puts "\n\n\n"
-          @room.speak(message)
+            message = "#{e[:author]}: #{e[:title]} -- #{e[:content]}".gsub(/[^[:print:]]/, '').gsub(/&amp;/,'&')
+            puts message
+            puts "\n\n\n"
+            @room.speak(message)
+          end
+      #    recent_items = recent_items.sort.last 10
+          recent_items[id] = e
+          save_db(@conf['lhcache'], recent_items)
         end
-    #    recent_items = recent_items.sort.last 10
-        recent_items[id] = e
-        save_db(@conf['lhcache'], recent_items)
+      rescue Exception => e
+        puts e.message
+        puts e.backtrace.inspect
       end
     end
-
   end
 
   def save_db(file, object)
