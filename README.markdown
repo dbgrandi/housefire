@@ -24,3 +24,11 @@ Then, start up housefire and just leave it running. It currently checks LH
 every 60 seconds and keeps a local cache of what it has previously seen to
 keep the spam down on campfire.
 
+TODO:
+- don't let the cache grow ad infinitum, only cache the last few dozen events
+- better formatting for specific events
+- cowsay?
+- better control over verbosity
+- xmpp support
+
+

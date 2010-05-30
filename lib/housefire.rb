@@ -3,6 +3,7 @@
 #
 # dbgrandi.in.2010
 #
+#
 require 'rubygems'
 require 'nokogiri'
 require 'sanitize'
@@ -11,18 +12,6 @@ require 'broach'
 class Housefire
   
   def initialize(*args)
-    #
-    # required config:
-    #   lhuser: <your lh login>
-    #   lhpass: <your lh password>
-    #   account: <your campfire domain>
-    #   token: <your campfire auth token>
-    #   room: <the campfire room to talk to>
-    #
-    # optional config:
-    #   ssl: <use ssl for campfire?>
-    #   lhcache: <where to put the lighthouse event cache>
-    #
     @conf = YAML.load(File.read(File.expand_path("~/.housefire")))
     @conf['ssl'] ||= false
     @conf['lhcache'] ||= File.expand_path("~/.housefire.tmp")
@@ -59,21 +48,70 @@ class Housefire
           e = {}
           e[:id] = id
 
-          # DON'T notify changesets, github already does that
           title = entry.css("title")[0].content
-          if !title.include?("[Changeset] ")
+          puts "title = #{title}"
+          case
+          when title.include?("[Changeset] ")
+            # changeset = [Changeset] <projectname>: Changeset [<sha>] by <user>
+            # we don't care about these, github already posts it for us
+            puts "Discarding Changeset message..."
+          when title.include?("[Page] ")
+            # page = [Page] <projectname>: <title>
+            #     content needs html un-escaping
+            e[:title] = title
+            e[:author]  = entry.css("author name")[0].content
+            e[:link] = entry.css("link")[0].attributes["href"].content
+            message = "#{e[:title]} - #{e[:author]} #{e[:link]}"
+            puts message + "\n\n\n"
+            @room.speak(message)
+          when title.include?("New ")
+            # member = New <projectname> Project Member
+            #     like "New axislivewebsite Project Member"
+            message = entry.css("content")[0].content
+            puts message + "\n\n\n"
+            @room.speak(message)
+          when title.include?(" Bulk Edit: ")
+            # bulk edit = <projectname> Bulk Edit: <ticketlist no commas>
+            #     also, href link is like http://wgrids.lighthouseapp.com/projects/45964/bulk_edits/19926
             e[:title]   = title
             e[:content] = Sanitize.clean(entry.css("content")[0].content)
             e[:author]  = entry.css("author name")[0].content
             e[:link]    = entry.css("link")[0].attributes["href"].content
-            e[:date]    = entry.css("published")[0].content
-
-            message = "#{e[:author]}: #{e[:title]} -- #{e[:content]}".gsub(/[^[:print:]]/, '').gsub(/&amp;/,'&')
-            puts message
-            puts "\n\n\n"
+            message = "#{e[:title]} - #{e[:content].gsub(/[^[:print:]]/, '').gsub(/&amp;/,'&')} #{e[:author]} #{e[:link]}"
+            puts message + "\n\n\n"
             @room.speak(message)
+          when title.include?("[Milestone] ")
+            # milestone = [Milestone] <projectname>: <title>
+            e[:title]   = title
+            e[:content] = Sanitize.clean(entry.css("content")[0].content)
+            e[:author]  = entry.css("author name")[0].content
+            e[:link]    = entry.css("link")[0].attributes["href"].content
+            message = "#{e[:title]} -- #{e[:content].gsub(/[^[:print:]]/, '').gsub(/&amp;/,'&')} - #{e[:author]} #{e[:link]}"
+            puts message + "\n\n\n"
+            @room.speak(message)
+          when title[/\s\[#\d+\]$/] != nil
+            # ticket takes the form <projectname>: comment...blah [#<num>]
+            # e.g. <title type="html">weheartradio: It's possible to have multiple xmppclients trying to reconnect [#418]</title>
+            e[:title]   = title
+            #
+            # tickets that were just created may not have any content
+            #
+            if entry.css("content").empty?
+              e[:content] = "NEW"
+            else
+              content = Sanitize.clean(entry.css("content")[0].content)
+              e[:content] =  (content.length > 200) ? content[0..200] + "..." : content
+            end
+            e[:author]  = entry.css("author name")[0].content
+            e[:link]    = entry.css("link")[0].attributes["href"].content
+            message = "#{e[:title]} -- #{e[:content]} - #{e[:author]} #{e[:link]}"
+            puts message + "\n\n\n"
+            @room.speak(message)
+          else
+            puts "Not a valid message...or perhaps a new format."
           end
-      #    recent_items = recent_items.sort.last 10
+
+    #    recent_items = recent_items.sort.last 10
           recent_items[id] = e
           save_db(@conf['lhcache'], recent_items)
         end
